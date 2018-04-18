@@ -1,10 +1,12 @@
 # iot-intro
-##Part 2
+
+## Part 2
+
 Intro presentation to the internet of things.
 
 ABC, SIMPLE AS 1,2,3...
 
-##How to get started:
+## How to get started:
 
 **DEVICE:**
  - Ensure you have [PlatformIO Core](http://docs.platformio.org/en/latest/installation.html) installed on your local machine.
@@ -45,7 +47,7 @@ go run mqtt-influx-bridge/main.go
 Import the grafana dashboard from grafana.json if you are feeling lazy...
 
 
-##Adding a precence sensor
+## Adding a precence sensor
 
 It is time to expand the ESP8266 with some sensors to detect precence, there are some [different alternatives](http://www.instructables.com/id/PIR-and-Radar-Sensor-Comparison/) on how to accomplish this.
 We evaluated two different types of sensors:
@@ -56,9 +58,10 @@ We evaluated two different types of sensors:
 We chose to use the Microwave sensor, since we easily would be able to modify it to return analogue measurements.
 It is also quite easy to test the sensor by just connecting a battery and a led, since the output is a digital 1(precence) or digital 0 (no precence) and the driver can handle ~100ma
 
-**The code in this repo is updated with:**
+**The code in this repo will be updated with:**
 * A pin dedicated for the new sensor as a digital sensor.
 * A new mqtt message for precence.
+* New grafana views.
 
 *Note: We may need to filter out false positives from the data, but it is probably enough to do this from the data after it is stored in influx.*
 
