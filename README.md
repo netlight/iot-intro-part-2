@@ -46,6 +46,14 @@ go run mqtt-influx-bridge/main.go
 
 Import the grafana dashboard from grafana.json if you are feeling lazy...
 
+## Connecting the device to the broker
+
+The device code is preconfigured with an SSID and a password.
+These needs to be updated to match your wifi setup.
+
+The hardware running the containers for the broker, influx and grafan need to be on the same wifi.
+So that the mqtt packets from the devices can be intercepted by the broker.
+
 
 ## Adding a precence sensor
 
