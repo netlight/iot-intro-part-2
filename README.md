@@ -61,8 +61,15 @@ It is also quite easy to test the sensor by just connecting a battery and a led,
 **The code in this repo will be updated with:**
 * A pin dedicated for the new sensor as a digital sensor.
 * A new mqtt message for precence.
-* New grafana views.
+* For you to do yourself: New grafana view.
+
+## Debugging the sensors
+
+To be able to debug the sensors, without having to connect to a Wlan or MQTT broker.
+Set the variable OFFLINE_DEBUG in the code to:
+
+`#define OFFLINE_DEBUG true`
+
+In this mode the sensor values will only be sent over the serial port from the ESP.
 
 *Note: We may need to filter out false positives from the data, but it is probably enough to do this from the data after it is stored in influx.*
-
-
