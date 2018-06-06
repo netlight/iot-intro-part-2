@@ -13,7 +13,12 @@
 // sensor defines
 #define DHTPIN 5
 #define DHTTYPE DHT11   // DHT 22  (AM2302), AM2321
+#define RCWLPIN D2
 #define INTERVAL 15000
+#define OFFLINE_DEBUG false
+// setting OFFLINE_DEBUG to true
+// makes it possible to read sensor values through
+// serial monitor without being connected to a wifi and broker.
 
 const char* applicationUUID = "nl_iot_8-webupdate";
 const char* ssid = "_";
@@ -23,6 +28,7 @@ const char* TOPIC = "sensordata";
 
 char tmp[75];
 char hum[75];
+char pres[75];
 char chipId[100];
 char topic[100];
 bool new_reading = false;
@@ -62,16 +68,22 @@ void reconnect() {
 }
 
 void readSensor() {
-  Serial.println("\nReading sensor...");
+  Serial.println("\nReading DHT sensor...");
   // Reading temperature or humidity takes about 250 milliseconds!
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
 
   // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
-  Serial.println("\n Read sensor completed...");
+  Serial.println("\n Read DHT sensor completed...");
   // Read temperature as Fahrenheit (isFahrenheit = true)
   //float f = dht.readTemperature(true);
+
+  Serial.println("\nReading RCWL sensor...");
+  // Read presence sensor:
+  float p = digitalRead(RCWLPIN);
+  Serial.println("\n Read RCWL sensor completed...");
+
 
   // Check if any reads failed and exit early (to try again).
   if (isnan(h) || isnan(t)) {
@@ -81,8 +93,13 @@ void readSensor() {
 
   dtostrf(h, 3, 1, hum);
   dtostrf(t, 3, 1, tmp);
-  Serial.println("\nValue:");
+  dtostrf(p, 3, 1, pres);
+  Serial.println("\nValue humidity:");
+  Serial.println(hum);
+  Serial.println("\nValue temp:");
   Serial.println(tmp);
+  Serial.println("\nValue presence:");
+  Serial.println(pres);
 
   new_reading = true;
 }
@@ -92,7 +109,7 @@ void transmit() {
 
   Serial.println("transmitting");
 
-  snprintf(payload, 375, "{\"temperature\": %s, \"humidity\": %s, \"device\": \"%s\"}", tmp, hum, chipId);
+  snprintf(payload, 375, "{\"temperature\": %s, \"humidity\": %s, \"presence\": %s, \"device\": \"%s\"}", tmp, hum, pres, chipId);
 
   Serial.print(topic);
   Serial.print(" ");
@@ -122,30 +139,31 @@ void setup(void) {
   digitalWrite(LED_BUILTIN, HIGH);
   digitalWrite(2, HIGH);
 
-  WiFi.setAutoConnect(true);
-  WiFi.setAutoReconnect(true);
-  WiFi.hostname(applicationUUID);
+  if(!OFFLINE_DEBUG){
+    WiFi.setAutoConnect(true);
+    WiFi.setAutoReconnect(true);
+    WiFi.hostname(applicationUUID);
 
-  Serial.print("Connecting to gateway...");
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
+    Serial.print("Connecting to gateway...");
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println("\nConnected to gateway");
+
+    // set up mqtt stuff
+    client.setServer(mqtt_server, 1883);
+
+    httpServer.on("/id", [](){
+      httpServer.send(200, "text/plain", applicationUUID);
+    });
+    httpUpdater.setup(&httpServer);
+    httpServer.begin();
+
+    reconnect();
   }
-  Serial.println("\nConnected to gateway");
-
-  // set up mqtt stuff
-  client.setServer(mqtt_server, 1883);
-
-  httpServer.on("/id", [](){
-    httpServer.send(200, "text/plain", applicationUUID);
-  });
-  httpUpdater.setup(&httpServer);
-  httpServer.begin();
-
-  reconnect();
-
 }
 
 void loop(void) {
@@ -160,9 +178,11 @@ void loop(void) {
     // only try to reconnect when there's a new reading
     digitalWrite(LED_BUILTIN, LOW);
     delay(100);
-    reconnect();
+    if(!OFFLINE_DEBUG)
+      reconnect();
     digitalWrite(LED_BUILTIN, HIGH);
-    transmit();
+    if(!OFFLINE_DEBUG)
+      transmit();
   }
 
   long now = millis();
