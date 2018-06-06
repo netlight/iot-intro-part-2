@@ -22,7 +22,7 @@
 
 const char* applicationUUID = "nl_iot_8-webupdate";
 const char* ssid = "_";
-const char* password = "043022626";
+const char* password = "043004310";
 const char* mqtt_server = "10.0.1.7";
 const char* TOPIC = "sensordata";
 
