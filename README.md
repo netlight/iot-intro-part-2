@@ -72,4 +72,6 @@ Set the variable OFFLINE_DEBUG in the code to:
 
 In this mode the sensor values will only be sent over the serial port from the ESP.
 
+![debugging](./images/offline_debug.png)
+
 *Note: We may need to filter out false positives from the data, but it is probably enough to do this from the data after it is stored in influx.*
