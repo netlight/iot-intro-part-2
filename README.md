@@ -12,6 +12,7 @@ ABC, SIMPLE AS 1,2,3...
  - Ensure you have [PlatformIO Core](http://docs.platformio.org/en/latest/installation.html) installed on your local machine.
  - Connect the ESP8266 to your computer using a USB cable.
  - Edit the wifi and ip-address settings in the esp8266-dht/src/main.cpp code.
+ - Edit the ip-address in mqtt-influx-bridge/main.go.
  - In the esp8266-dht folder of this repo run `platformio run --target upload`.
  - This should upload the device code to the ESP8266, you should see it's led flashing during the process.
 
