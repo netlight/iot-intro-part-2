@@ -60,6 +60,7 @@ func (br *mqttInfluxBridge) storeSensorData(client mqtt.Client, msg mqtt.Message
 		}
 		bp.AddPoint(pt)
 	}
+	log.Println("write to influx...")
 	br.client.Write(bp)
 }
 
@@ -69,7 +70,7 @@ type mqttInfluxBridge struct {
 
 func main() {
 	mqtt.ERROR = log.New(os.Stdout, "", 0)
-	opts := mqtt.NewClientOptions().AddBroker("tcp://10.0.1.7:1883").SetClientID("influxdb-bridge")
+	opts := mqtt.NewClientOptions().AddBroker("tcp://192.168.43.208:1883").SetClientID("influxdb-bridge")
 	opts.SetKeepAlive(2 * time.Second)
 	opts.SetDefaultPublishHandler(defaultMqttHandler)
 	opts.SetPingTimeout(1 * time.Second)

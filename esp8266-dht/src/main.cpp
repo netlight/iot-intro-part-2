@@ -14,16 +14,16 @@
 #define DHTPIN 5
 #define DHTTYPE DHT11   // DHT 22  (AM2302), AM2321
 #define RCWLPIN D2
-#define INTERVAL 15000
+#define INTERVAL 1500
 #define OFFLINE_DEBUG false
 // setting OFFLINE_DEBUG to true
 // makes it possible to read sensor values through
 // serial monitor without being connected to a wifi and broker.
 
-const char* applicationUUID = "nl_iot_8-webupdate";
+const char* applicationUUID = "nl_iot_6-webupdate";
 const char* ssid = "_";
 const char* password = "043004310";
-const char* mqtt_server = "10.0.1.7";
+const char* mqtt_server = "192.168.43.208";
 const char* TOPIC = "sensordata";
 
 char tmp[75];
@@ -39,12 +39,27 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 long lastMsg = 0;
 char msg[50];
+char metricsData[430];
+const char* helpTemp = "# HELP temperature Shows the temperature in the room.";
+const char* helpHumidity = "# HELP humidity Shows the humidity in the room.";
+const char* helpPresence = "# HELP presence Shows movement in the room.";
+const char* typeTemp = "# TYPE temp value in celsius.";
+const char* typeHumidity = "# TYPE humidity value in percentages.";
+const char* typePresence = "# TYPE is movement is detected, boolean value.";
+char* getData();
 
 // Initialize DHT sensor.
 // Note that older versions of this library took an optional third parameter to
 // tweak the timings for faster processors.  This parameter is no longer needed
 // as the current DHT reading algorithm adjusts itself to work on faster procs.
 DHT dht(DHTPIN, DHTTYPE);
+
+char* getData(){
+
+  snprintf(metricsData, 430,\
+    "%s\n%s\ntemperature %s\n%s\n%s\nhumidity %s\n%s\n%s\npresence %s", helpTemp, typeTemp, tmp, helpHumidity, typeHumidity, hum, helpPresence, typePresence, pres);
+  return metricsData;
+}
 
 void reconnect() {
   if (client.connected()) {
@@ -158,6 +173,10 @@ void setup(void) {
 
     httpServer.on("/id", [](){
       httpServer.send(200, "text/plain", applicationUUID);
+    });
+
+    httpServer.on("/metrics", [](){
+      httpServer.send(200, "text/plain", getData());
     });
     httpUpdater.setup(&httpServer);
     httpServer.begin();
